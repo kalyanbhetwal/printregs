@@ -10,33 +10,225 @@ use cortex_m_rt::entry;
 use volatile_register::RW;
 use cortex_m_semihosting::{debug, hprintln}; 
 
+// // Define the stack size
+// const STACK_SIZE: usize = 1024; // Adjust the size based on your requirements
+
+// // Define the stack and specify its section
+// #[link_section = ".stack"]
+// static mut STACK: [u8; STACK_SIZE] = [0; STACK_SIZE];
+
+fn rest(){
+    unsafe{asm!("NOP")}
+}
+
+fn checkpoint() {    
+
+    unsafe {
+        asm!(
+            "add sp, #64"
+        );
+    }
+    unsafe {
+        asm!(
+            "pop {{r7}}"
+        );
+    }
+    unsafe {
+        asm!(
+            "push {{r7}}"
+        );
+    }
+    unsafe {
+        asm!(
+            "sub sp, #64"
+        );
+    }
+   
+   let r0_value: u32;
+    let r1_value: u32;
+    let r2_value: u32;
+    let r3_value: u32;
+    let r4_value: u32;
+    let r5_value: u32;
+    let r6_value: u32;
+    let r7_value: u32;
+    let r8_value: u32;
+    let r9_value: u32;
+    let r10_value: u32;
+    let r11_value: u32;
+    let r12_value: u32;
+    let r13_sp: u32;
+    let r14_lr: u32;
+    let r15_pc: u32;
+
+
+
+    // let (
+    //     r0_value, r1_value, r2_value, r3_value, r4_value, r5_value, r6_value, r7_value,
+    //     r8_value, r9_value, r10_value, r11_value, r12_value, r13_sp, r14_lr, r15_pc,
+    // ): (u32, u32, u32, u32, u32, u32, u32, u32, u32, u32, u32, u32, u32, u32, u32, u32);
+    
+    unsafe {
+        asm!(
+            "MOV {0}, r0",
+            out(reg) r0_value
+        );
+    }
+    unsafe {
+        asm!(
+            "MOV {0}, r1",
+            out(reg) r1_value
+        );
+    }
+    unsafe {
+        asm!(
+            "MOV {0}, r2",
+            out(reg) r2_value
+        );
+    }
+    unsafe {
+        asm!(
+            "MOV {0}, r3",
+            out(reg) r3_value
+        );
+    }
+    unsafe {
+        asm!(
+            "MOV {0}, r4",
+            out(reg) r4_value
+        );
+    }
+    unsafe {
+        asm!(
+            "MOV {0}, r5",
+            out(reg) r5_value
+        );
+    }
+    unsafe {
+        asm!(
+            "MOV {0}, r6",
+            out(reg) r6_value
+        );
+    }
+    unsafe {
+        asm!(
+            "MOV {0}, r7",
+            out(reg) r7_value
+        );
+    }
+    unsafe {
+        asm!(
+            "MOV {0}, r8",
+            out(reg) r8_value
+        );
+    }  
+    unsafe {
+        asm!(
+            "MOV {0}, r9",
+            out(reg) r9_value
+        );
+    }   
+
+    unsafe {
+        asm!(
+            "MOV {0}, r10",
+            out(reg) r10_value
+        );
+    }              
+    unsafe {
+        asm!(
+            "MOV {0}, r11",
+            out(reg) r11_value
+        );
+    }               
+    unsafe {
+        asm!(
+            "MOV {0}, r12",
+            out(reg) r12_value
+        );
+    }           
+    unsafe {
+        asm!(
+            "MOV {0}, r13",
+            out(reg) r13_sp
+        );
+    }           
+    unsafe {
+        asm!(
+            "MOV {0}, r14",
+            out(reg) r14_lr
+        );
+    }       
+    unsafe {
+        asm!(
+            "MOV {0}, r15",
+            out(reg) r15_pc
+        );
+    } 
+
+    rest();
+    // hprintln!("r0: {:#X}", r0_value).unwrap();  
+    // hprintln!("r1: {:#X}", r1_value).unwrap();  
+    // hprintln!("r2: {:#X}", r2_value).unwrap();  
+    // hprintln!("r3: {:#X}", r3_value).unwrap();
+    // hprintln!("r4: {:#X}", r4_value).unwrap();
+    // hprintln!("r5: {:#X}", r5_value).unwrap();
+    // hprintln!("r6: {:#X}", r6_value).unwrap();
+   
+    // hprintln!("r8: {:#X}", r8_value).unwrap();
+    // hprintln!("r9: {:#X}", r9_value).unwrap();
+    // hprintln!("r10: {:#X}", r10_value).unwrap();
+    // hprintln!("r11: {:#X}", r11_value).unwrap();
+    // hprintln!("r12: {:#X}", r12_value).unwrap();
+    // hprintln!("r13: {:#X}", r13_sp).unwrap();
+    // hprintln!("r14: {:#X}", r14_lr).unwrap();
+    // hprintln!("r15: {:#X}", r15_pc).unwrap();          
+
+}
+
 #[no_mangle]
 pub extern "C" fn main() -> ! {
    
 
     //hprintln!("Hello, world!").unwrap();
    
-    let mut addr1 = 0x20001020;
-    let mut addr2 = 0x20001022;
-    let mut addr3 = 0x20001024;
+    // let mut addr1 = 0x20001020;
+    // let mut addr2 = 0x20001022;
+    // let mut addr3 = 0x20001024;
 
 
-    unsafe {
-        asm!("mov r1, #8
-            str r1, [{0}]",
-            inlateout(reg) addr1);
-    }
-    unsafe {
-        asm!("mov r2, #16
-            str r2, [{0}]",
-            inlateout(reg) addr2);
-    }
-    unsafe {
-        asm!("mov r3, #32
-            str r3, [{0}]",
-            inlateout(reg) addr3);
-    }
-    hprintln!("hello").unwrap();
+    // unsafe {
+    //     asm!("mov r1, #8
+    //         str r1, [{0}]",
+    //         inlateout(reg) addr1);
+    // }
+    // unsafe {
+    //     asm!("mov r2, #16
+    //         str r2, [{0}]",
+    //         inlateout(reg) addr2);
+    // }
+    // unsafe {
+    //     asm!("mov r3, #32
+    //         str r3, [{0}]",
+    //         inlateout(reg) addr3);
+    // }
+
+
+
+     unsafe {
+        asm!("mov r0, #20
+                mov r1, #8
+                mov r2, #16
+                mov r3, #32
+                mov r4, #40
+                mov r7, #99")
+        }
+     
+     checkpoint();
+    // hprintln!("r0: {:#X}", r0_value).unwrap();
+
+
+    // hprintln!("hello").unwrap();
 
     // exit QEMU
     // NOTE do not run this on hardware; it can corrupt OpenOCD state
