@@ -1,25 +1,26 @@
 //! Prints "Hello, world!" on the host console using semihosting
 #![allow(unused_imports)]
+#![allow(unused_variables)]
+#![allow(unused_assignments)]
 #![no_main]
 #![no_std]
 
 use panic_halt as _;
-
 use core::arch::asm;
 use cortex_m_rt::entry;
 use volatile_register::RW;
 use cortex_m_semihosting::{debug, hprintln}; 
 
 // // Define the stack size
-// const STACK_SIZE: usize = 1024; // Adjust the size based on your requirements
+const STACK_SIZE: usize = 1024; // Adjust the size based on your requirements
 
 // // Define the stack and specify its section
-// #[link_section = ".stack"]
-// static mut STACK: [u8; STACK_SIZE] = [0; STACK_SIZE];
+#[link_section = ".stack"]
+static mut STACK: [u8; STACK_SIZE] = [0; STACK_SIZE];
 
-fn rest(){
-    unsafe{asm!("NOP")}
-}
+// fn rest(){
+//     unsafe{asm!("NOP")}
+// }
 
 fn checkpoint() {    
 
@@ -166,7 +167,20 @@ fn checkpoint() {
         );
     } 
 
-    rest();
+
+    let mut start_address: u32 = 0x2000_fffc as u32;
+    let mut end_address:  u32 = (r13_sp-64-8) as u32;
+
+    while end_address <= start_address {
+        unsafe{
+        let value = core::ptr::read_volatile(start_address);
+        //write_to_flash();
+        //fn write_to_flash(flash: &mut FLASH, addr: u32, data: u32)
+        // Move to the next address based on the size of the type
+        end_address = end_address+4;
+        }
+    }
+    
     // hprintln!("r0: {:#X}", r0_value).unwrap();  
     // hprintln!("r1: {:#X}", r1_value).unwrap();  
     // hprintln!("r2: {:#X}", r2_value).unwrap();  
@@ -186,9 +200,38 @@ fn checkpoint() {
 
 }
 
+// #[no_mangle]
+// pub extern "C" fn change_stack_to_psp()->!{
+//     unsafe {
+//         asm!(
+//             // change PSP
+//             "LDR R0, = STACK
+//             MSR PSP, R0
+//             MRS R1, CONTROL
+//             ORR R1, R1, #2
+//             MSR CONTROL, R1
+//             BX LR",
+//             options(noreturn)
+//         );
+//     }
+// }
+
+#[no_mangle]
+pub extern "C" fn change_stack_to_psp(){
+  
+    unsafe{
+    let stack_ptr = &STACK as *const _ as u32;
+    asm!(
+        "MSR MSP, {}", 
+        in(reg) stack_ptr
+    )
+}
+}
+
 #[no_mangle]
 pub extern "C" fn main() -> ! {
    
+    //change_stack_to_psp();
 
     //hprintln!("Hello, world!").unwrap();
    
@@ -213,8 +256,8 @@ pub extern "C" fn main() -> ! {
     //         inlateout(reg) addr3);
     // }
 
-
-
+    let a = 1;
+    let b = 2;
      unsafe {
         asm!("mov r0, #20
                 mov r1, #8
@@ -225,6 +268,8 @@ pub extern "C" fn main() -> ! {
         }
      
      checkpoint();
+     let c = a + b;
+
     // hprintln!("r0: {:#X}", r0_value).unwrap();
 
 
