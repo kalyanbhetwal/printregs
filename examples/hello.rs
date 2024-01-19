@@ -26,7 +26,7 @@ fn checkpoint() {
 
     unsafe {
         asm!(
-            "add sp, #64"
+            "add sp, #80"
         );
     }
     unsafe {
@@ -41,7 +41,7 @@ fn checkpoint() {
     }
     unsafe {
         asm!(
-            "sub sp, #64"
+            "sub sp, #80"
         );
     }
    
@@ -61,8 +61,6 @@ fn checkpoint() {
     let r13_sp: u32;
     let r14_lr: u32;
     let r15_pc: u32;
-
-
 
     // let (
     //     r0_value, r1_value, r2_value, r3_value, r4_value, r5_value, r6_value, r7_value,
@@ -147,7 +145,9 @@ fn checkpoint() {
             "MOV {0}, r12",
             out(reg) r12_value
         );
-    }           
+    }     
+    // correct the sp for later use  (just used as a place holder)    
+    // actual_sp = current_sp + 88
     unsafe {
         asm!(
             "MOV {0}, r13",
@@ -167,20 +167,21 @@ fn checkpoint() {
         );
     } 
 
+    unsafe{
+       //let  start_address: u32 = 0x2000_fffc as u32;
+       let mut end_address = r13_sp+88;
+    
 
-    let mut start_address: u32 = 0x2000_fffc as u32;
-    let mut end_address:  u32 = (r13_sp-64-8) as u32;
-
-    while end_address <= start_address {
-        unsafe{
-        let value = core::ptr::read_volatile(start_address);
+    while end_address <= 0x2000_fffc as u32 {
+        let value = core::ptr::read_volatile(end_address as * const u32);
         //write_to_flash();
         //fn write_to_flash(flash: &mut FLASH, addr: u32, data: u32)
         // Move to the next address based on the size of the type
+       // hprintln!("stack val: {:#X}",value).unwrap();
         end_address = end_address+4;
-        }
+        
     }
-    
+}
     // hprintln!("r0: {:#X}", r0_value).unwrap();  
     // hprintln!("r1: {:#X}", r1_value).unwrap();  
     // hprintln!("r2: {:#X}", r2_value).unwrap();  
