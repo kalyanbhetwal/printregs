@@ -2,6 +2,7 @@
 #![allow(unused_imports)]
 #![allow(unused_variables)]
 #![allow(unused_assignments)]
+#![allow(dead_code)]
 #![no_main]
 #![no_std]
 
@@ -26,7 +27,7 @@ fn checkpoint() {
 
     unsafe {
         asm!(
-            "add sp, #80"
+            "add sp, #96"
         );
     }
     unsafe {
@@ -41,7 +42,7 @@ fn checkpoint() {
     }
     unsafe {
         asm!(
-            "sub sp, #80"
+            "sub sp, #96"
         );
     }
    
@@ -147,7 +148,7 @@ fn checkpoint() {
         );
     }     
     // correct the sp for later use  (just used as a place holder)    
-    // actual_sp = current_sp + 88
+    // actual_sp = current_sp + 96<can change> + 8
     unsafe {
         asm!(
             "MOV {0}, r13",
@@ -169,36 +170,71 @@ fn checkpoint() {
 
     unsafe{
        //let  start_address: u32 = 0x2000_fffc as u32;
-       let mut end_address = r13_sp+88;
-    
+       let mut start_address:u32;
+       let  end_address = r13_sp+88;
 
-    while end_address <= 0x2000_fffc as u32 {
+       asm!("movw r0, 0xfffc
+            movt r0, 0x2000");
+        asm!(
+            "MOV {0}, r0",
+            out(reg) start_address
+        );
+
+        let mut flash_start_address:u32;
+
+        asm!("movw r0, 0x90A4
+            movt r0, 0x0800");
+        asm!(
+            "MOV {0}, r0",
+            out(reg) flash_start_address
+        );
+       //let flash_start = 0x0800_90A4;
+
+    while start_address >= start_address as u32 {
         let value = core::ptr::read_volatile(end_address as * const u32);
+        //
         //write_to_flash();
+        flash_start_address = flash_start_address + 4;
         //fn write_to_flash(flash: &mut FLASH, addr: u32, data: u32)
         // Move to the next address based on the size of the type
        // hprintln!("stack val: {:#X}",value).unwrap();
-        end_address = end_address+4;
+        start_address = start_address-4;
         
     }
 }
-    // hprintln!("r0: {:#X}", r0_value).unwrap();  
-    // hprintln!("r1: {:#X}", r1_value).unwrap();  
-    // hprintln!("r2: {:#X}", r2_value).unwrap();  
-    // hprintln!("r3: {:#X}", r3_value).unwrap();
-    // hprintln!("r4: {:#X}", r4_value).unwrap();
-    // hprintln!("r5: {:#X}", r5_value).unwrap();
-    // hprintln!("r6: {:#X}", r6_value).unwrap();
-   
-    // hprintln!("r8: {:#X}", r8_value).unwrap();
-    // hprintln!("r9: {:#X}", r9_value).unwrap();
-    // hprintln!("r10: {:#X}", r10_value).unwrap();
-    // hprintln!("r11: {:#X}", r11_value).unwrap();
-    // hprintln!("r12: {:#X}", r12_value).unwrap();
-    // hprintln!("r13: {:#X}", r13_sp).unwrap();
-    // hprintln!("r14: {:#X}", r14_lr).unwrap();
-    // hprintln!("r15: {:#X}", r15_pc).unwrap();          
+    // hprintln!("r0: {:#X}", r0_value).unwrap();            
 
+}
+
+fn restore()->bool{
+    unsafe {
+        let r0_flash = core::ptr::read_volatile(0x0800_90A4 as *const u32);
+        if r0_flash == 0xffff_ffff {
+            return false
+        }
+        //set sp to 0x0200_fffc
+        asm!("movw r0, 0xfffc
+        movt r0, 0x0200");
+        asm!("mov sp, r0");
+
+        asm!("movw r0, 0x90A4
+            movt r0, 0x0800");
+
+
+        asm!("movw r3, 0xffff
+        movt r3, 0xffff");
+    
+        asm!("1:
+            ldr r1, [r0, #4]
+            cmp r1, r3
+            beq 2f
+            push {{r1}}
+            subs r0, r0, #1
+            b 1b
+            2:");     
+    }
+
+    return true;
 }
 
 // #[no_mangle]
@@ -256,9 +292,10 @@ pub extern "C" fn main() -> ! {
     //         str r3, [{0}]",
     //         inlateout(reg) addr3);
     // }
-
-    let a = 1;
-    let b = 2;
+    
+    restore();
+    let a = 10;
+    let b = 30;
      unsafe {
         asm!("mov r0, #20
                 mov r1, #8
