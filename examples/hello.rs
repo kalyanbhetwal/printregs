@@ -190,7 +190,7 @@ fn checkpoint() {
         );
        //let flash_start = 0x0800_90A4;
 
-    while start_address >= start_address as u32 {
+    while start_address >= end_address as u32 {
         let value = core::ptr::read_volatile(end_address as * const u32);
         //
         //write_to_flash();
