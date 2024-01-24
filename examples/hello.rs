@@ -171,7 +171,7 @@ fn checkpoint() {
     unsafe{
        //let  start_address: u32 = 0x2000_fffc as u32;
        let mut start_address:u32;
-       let  end_address = r13_sp+88;
+       let  end_address = r13_sp+104;
 
        asm!("movw r0, 0xfffc
             movt r0, 0x2000");
