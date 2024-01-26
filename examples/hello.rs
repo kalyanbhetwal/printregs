@@ -229,7 +229,7 @@ fn restore()->bool{
             cmp r1, r3
             beq 2f
             push {{r1}}
-            adds r0, r0, #1
+            adds r0, r0, #4
             b 1b
             2:");     
     }
