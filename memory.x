@@ -1,11 +1,11 @@
-STACK_SIZE = 4k;  
 MEMORY
 {
   /* NOTE 1 K = 1 KiBi = 1024 bytes */
   /* TODO Adjust these memory regions to match your device memory layout */
   /* These values correspond to the LM3S6965, one of the few devices QEMU can emulate */
   FLASH : ORIGIN = 0x00000000, LENGTH = 256K
-  RAM : ORIGIN = 0x20000000, LENGTH = 64K
+  RAM : ORIGIN  = 0x20000000, LENGTH = 64K
+  CUSTOM_SECTION : ORIGIN = 0x20020000, LENGTH = 16K  /* Custom RAM region */
 }
 
 /* This is where the call stack will be allocated. */
@@ -26,18 +26,3 @@ MEMORY
    sources added the attribute `#[link_section = ".ram2bss"]` to the data
    you want to place there. */
 /* Note that the section will not be zero-initialized by the runtime! */
-/* SECTIONS {
-     .ram2bss (NOLOAD) : ALIGN(4) {
-       *(.ram2bss);
-       . = ALIGN(4);
-     } > RAM2
-   } INSERT AFTER .bss;
-*/
-
-/* Define the stack section */
-_estack = ORIGIN(RAM) + LENGTH(RAM);
-_stack_start = _estack;
-
-/* Specify the stack section location and size */
-PROVIDE(_stack_start = _stack_start);
-PROVIDE(_stack_end = _estack - STACK_SIZE);
